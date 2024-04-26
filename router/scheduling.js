@@ -5,7 +5,9 @@ const { Op } = require("sequelize");
 
 router.post("/create/schedule", async (req, res) => {
   try {
-    const { status, date, start_time, end_time, professor } = req.body;
+    const { date, start_time, end_time, professor } = req.body;
+
+    const status = req.body.status.toUpperCase();
     const username = req.cookies.username;
 
     // // Use the username as needed
