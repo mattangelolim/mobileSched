@@ -47,6 +47,8 @@ router.post("/login/user", async (req, res) => {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
 
+    res.cookie('username', username, { maxAge: 900000, httpOnly: true });
+    
     res.status(200).json({ message: "User Login Success" });
   } catch (error) {
     console.error(error);

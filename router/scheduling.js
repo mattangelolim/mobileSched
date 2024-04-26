@@ -6,6 +6,10 @@ const { Op } = require("sequelize");
 router.post("/create/schedule", async (req, res) => {
   try {
     const { status, date, start_time, end_time, professor } = req.body;
+    const username = req.cookies.username;
+
+    // // Use the username as needed
+    // console.log("Username:", username);
 
     const currentDate = new Date();
     currentDate.setDate(currentDate.getDate() - 1);
@@ -31,6 +35,7 @@ router.post("/create/schedule", async (req, res) => {
       start_time,
       end_time,
       professor,
+      createdBy: username,
     });
 
     // Return a success response
@@ -43,7 +48,27 @@ router.post("/create/schedule", async (req, res) => {
 
 router.get("/all/schedules", async (req, res) => {
   try {
-    const Scheds = await Schedule.findAll();
+    const username = req.cookies.username;
+    const Scheds = await Schedule.findAll({
+      where: {
+        createdBy: username,
+      },
+    });
+
+    res.json(Scheds);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/active/schedules", async (req, res) => {
+  try {
+    const Scheds = await Schedule.findAll({
+      where: {
+        display: "1",
+      },
+    });
 
     res.json(Scheds);
   } catch (error) {

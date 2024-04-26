@@ -31,6 +31,10 @@ const Schedule = sequelize.define("Schedule", {
     type: DataTypes.ENUM("0", "1"),
     defaultValue: "0",
   },
+  createdBy: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 // Schedule.sync();
