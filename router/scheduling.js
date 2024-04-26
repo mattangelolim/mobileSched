@@ -8,7 +8,7 @@ router.post("/create/schedule", async (req, res) => {
     const { status, date, start_time, end_time, professor } = req.body;
 
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate.setDate(currentDate.getDate() - 1);
     if (new Date(date) < currentDate) {
       return res.status(400).json({ message: "Date cannot be in the past" });
     }
