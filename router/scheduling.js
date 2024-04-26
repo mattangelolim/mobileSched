@@ -20,7 +20,12 @@ router.post("/create/schedule", async (req, res) => {
     // Check if there's already a schedule with the same date, start time, and end time
     const existingSchedule = await Schedule.findOne({
       where: {
-        [Op.and]: [{ date }, { start_time }, { end_time }],
+        [Op.and]: [
+          { date },
+          { start_time },
+          { end_time },
+          { createdBy: username },
+        ],
       },
     });
 
