@@ -66,13 +66,17 @@ router.post("/create/schedule", async (req, res) => {
 router.get("/all/schedules", async (req, res) => {
   try {
     const username = req.cookies.username;
-    const Scheds = await Schedule.findAll({
+    const currentDate = new Date();
+    const UpcomingSchedules = await Schedule.findAll({
       where: {
         createdBy: username,
+        date: {
+          [Op.gt]: currentDate, 
+        },
       },
     });
 
-    res.json(Scheds);
+    res.json(UpcomingSchedules);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
