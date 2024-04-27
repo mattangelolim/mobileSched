@@ -63,6 +63,22 @@ router.post("/create/schedule", async (req, res) => {
   }
 });
 
+router.get("/today/schedules", async (req, res) => {
+  try {
+    const username = req.cookies.username;
+    const sched = await Schedule.findAll({
+      where: {
+        createdBy: username,
+      },
+    });
+
+    res.json(sched);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.get("/all/schedules", async (req, res) => {
   try {
     const username = req.cookies.username;
@@ -71,7 +87,7 @@ router.get("/all/schedules", async (req, res) => {
       where: {
         createdBy: username,
         date: {
-          [Op.gt]: currentDate, 
+          [Op.gt]: currentDate,
         },
       },
     });
