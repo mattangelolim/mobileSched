@@ -56,4 +56,34 @@ router.post("/login/user", async (req, res) => {
   }
 });
 
+router.post("/logout/user", async (req, res) => {
+  try {
+    res.cookie('username', '', { expires: new Date(0), httpOnly: true });
+    
+    res.status(200).json({ message: "User Logout Success" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/get/user", async (req,res) =>{
+  try {
+    const username = req.cookies.username;
+
+    const user = await User.findOne({
+      where:{
+        username:username
+      },
+      attributes:["name"]
+    })
+
+    res.json(user)
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+})
+
 module.exports = router;
