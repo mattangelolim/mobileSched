@@ -6,7 +6,6 @@ const { Op } = require("sequelize");
 router.post("/create/schedule", async (req, res) => {
   try {
     const { date, start_time, end_time, professor } = req.body;
-
     const status = req.body.status.toUpperCase();
     const username = req.cookies.username;
 
@@ -19,7 +18,6 @@ router.post("/create/schedule", async (req, res) => {
       return res.status(400).json({ message: "Date cannot be in the past" });
     }
 
-    // Check if there's already a schedule with the same date, start time, and end time
     const existingSchedule = await Schedule.findOne({
       where: {
         [Op.and]: [
@@ -36,14 +34,26 @@ router.post("/create/schedule", async (req, res) => {
       return res.status(400).json({ message: "Schedule already exists" });
     }
 
-    await Schedule.create({
-      status,
-      date,
-      start_time,
-      end_time,
-      professor,
-      createdBy: username,
-    });
+    if (status === "WORK FROM HOME") {
+      await Schedule.create({
+        status,
+        date,
+        start_time,
+        end_time,
+        professor,
+        display: "1",
+        createdBy: username,
+      });
+    } else {
+      await Schedule.create({
+        status,
+        date,
+        start_time,
+        end_time,
+        professor,
+        createdBy: username,
+      });
+    }
 
     // Return a success response
     res.status(201).json({ message: "Schedule created successfully" });
