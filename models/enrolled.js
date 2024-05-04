@@ -21,6 +21,6 @@ const Enroll = sequelize.define("Enroll", {
   }
 });
 
-Enroll.sync();
+// Enroll.sync();
 
 module.exports = Enroll;

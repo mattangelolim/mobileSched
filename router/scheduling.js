@@ -3,6 +3,7 @@ const router = express.Router();
 const Schedule = require("../models/schedules");
 const { Op } = require("sequelize");
 const User = require("../models/user");
+const Range = require("../models/range");
 const nodemailer = require("nodemailer");
 
 router.post("/create/schedule", async (req, res) => {
@@ -179,6 +180,67 @@ router.post("/scan/qr", async (req, res) => {
     await Schedule.update({ display: "1" }, { where: { id } });
 
     res.status(200).json({ message: "Display updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.post("/set/sem/range", async (req, res) => {
+  try {
+    const username = req.cookies.username;
+    const { number } = req.body;
+
+    // Find the user code of the professor
+    const professorUserCode = await User.findOne({
+      where: {
+        username: username,
+        user_type: "Professor",
+      },
+      attributes: ["code"],
+    });
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(startDate.getDate() + parseInt(number));
+
+    // Create a new record in the Range table
+    await Range.create({
+      startDate: startDate,
+      endDate: endDate,
+      code: professorUserCode.code,
+    });
+
+    res.status(200).json({ message: "Semester range set successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/check/sem/range", async (req, res) => {
+  try {
+    const username = req.cookies.username;
+    // Find the user code of the professor
+    const professorUserCode = await User.findOne({
+      where: {
+        username: username,
+        user_type: "Professor",
+      },
+      attributes: ["code"],
+    });
+
+    const rangeReponse = await Range.findOne({
+      where: {
+        code: professorUserCode.code,
+      },
+    });
+
+    if (!rangeReponse) {
+      return res.json(null);
+    }
+
+    res.json(rangeReponse);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
