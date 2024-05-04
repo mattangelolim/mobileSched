@@ -25,13 +25,16 @@ const upload = multer({ storage: storage });
 app.post('/decode', upload.single('image'), (req, res) => {
   try {
     const file = req.file;
+    console.log("file", file)
     if (!file) {
       return res.status(400).send('No file uploaded.');
     }
 
     const imageData = fs.readFileSync(file.path);
+    console.log("imagedata", imageData)
 
     const qrCode = jsQR(imageData, file.size.width, file.size.height);
+    console.log("qrCode", qrCode)
 
     if (qrCode) {
       res.json({ qrData: qrCode.data });
