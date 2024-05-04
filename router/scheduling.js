@@ -2,77 +2,135 @@ const express = require("express");
 const router = express.Router();
 const Schedule = require("../models/schedules");
 const { Op } = require("sequelize");
+const User = require("../models/user");
+const nodemailer = require("nodemailer");
 
 router.post("/create/schedule", async (req, res) => {
   try {
-    const { date, start_time, end_time, professor } = req.body;
-    const status = req.body.status.toUpperCase();
+    const { start_time, end_time, professor, description } = req.body;
+    let day = req.body.day;
     const username = req.cookies.username;
 
-    // // Use the username as needed
-    // console.log("Username:", username);
+    day = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
 
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - 1);
-    if (new Date(date) < currentDate) {
-      return res.status(400).json({ message: "Date cannot be in the past" });
+    // Find the user's code
+    const findUser = await User.findOne({
+      where: {
+        username: username,
+        user_type: "Professor",
+      },
+      attributes: ["code"],
+    });
+
+    if (!findUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
+    // Check if the schedule already exists
     const existingSchedule = await Schedule.findOne({
       where: {
-        [Op.and]: [
-          { date },
-          { start_time },
-          { end_time },
-          { createdBy: username },
-        ],
+        day: day,
+        start_time: start_time,
+        end_time: end_time,
+        code: findUser.code,
       },
     });
 
-    // If there's an existing schedule, return a response indicating that the schedule already exists
     if (existingSchedule) {
       return res.status(400).json({ message: "Schedule already exists" });
     }
 
-    if (status === "WORK FROM HOME") {
-      await Schedule.create({
-        status,
-        date,
-        start_time,
-        end_time,
-        professor,
-        display: "1",
-        createdBy: username,
-      });
-    } else {
-      await Schedule.create({
-        status,
-        date,
-        start_time,
-        end_time,
-        professor,
-        createdBy: username,
-      });
-    }
+    // Create the new schedule
+    await Schedule.create({
+      day,
+      start_time,
+      end_time,
+      professor,
+      description,
+      code: findUser.code,
+    });
 
-    // Return a success response
-    res.status(201).json({ message: "Schedule created successfully" });
+    res.status(200).json({ message: "Schedule created successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
   }
 });
 
-router.get("/today/schedules", async (req, res) => {
+router.get("/set/schedules", async (req, res) => {
   try {
     const username = req.cookies.username;
+
+    const findUser = await User.findOne({
+      where: {
+        username: username,
+      },
+      attributes: ["code"],
+    });
+
     const sched = await Schedule.findAll({
       where: {
-        createdBy: username,
+        code: findUser.code,
       },
     });
 
     res.json(sched);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+router.post("/create/status", async (req, res) => {
+  try {
+    // const username = req.cookies.username;
+    const { status, id } = req.body;
+
+    const findSchedule = await Schedule.findOne({
+      where: {
+        id: id,
+      },
+      attributes: ["day", "start_time", "end_time", "description"],
+    });
+    if (findSchedule) {
+      // Add the status to the retrieved schedule object
+      findSchedule.status = status;
+
+      const userEmails = await User.findAll({
+        where: {
+          user_type: {
+            [Op.ne]: "Professor",
+          },
+        },
+        attributes: ["email"],
+      });
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "mattlim248@gmail.com",
+          pass: "xrld disq phlb qwgk",
+        },
+      });
+      const mailOptions = {
+        from: "mattlim248@gmail.com",
+        subject: `ANNOUNCEMENT FOR SCHEDULE ${findSchedule.description} on ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}`,
+        text: `This email is generated automatically to inform you regarding the status of your class. \n${status}`,
+      };
+
+      userEmails.forEach(async (user) => {
+        mailOptions.to = user.email;
+        try {
+          await transporter.sendMail(mailOptions);
+          // console.log("Email sent to: " + user.email);
+        } catch (error) {
+          console.error("Error sending email to " + user.email + ": ", error);
+        }
+      });
+    }
+
+    res.status(201).json({
+      message: "Announcement sent Successfully",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

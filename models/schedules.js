@@ -9,10 +9,10 @@ const Schedule = sequelize.define("Schedule", {
   },
   status: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
-  date: {
-    type: DataTypes.DATEONLY,
+  day: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   start_time: {
@@ -31,7 +31,11 @@ const Schedule = sequelize.define("Schedule", {
     type: DataTypes.ENUM("0", "1"),
     defaultValue: "0",
   },
-  createdBy: {
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  code: {
     type: DataTypes.STRING,
     allowNull: false,
   },

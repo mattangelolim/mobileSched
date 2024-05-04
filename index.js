@@ -11,8 +11,9 @@ app.use(cookieParser())
 
 const UserAuthentication = require("./router/authentication");
 const Scheduling = require("./router/scheduling");
+const studentRoutes = require("./router/studentRoutes")
 
-app.use("/", UserAuthentication, Scheduling);
+app.use("/", UserAuthentication, Scheduling, studentRoutes);
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
