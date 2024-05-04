@@ -63,7 +63,7 @@ router.get("/get/enrolled", async (req, res) => {
 
 router.get("/show/schedules", async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code } = req.query;
 
     const sched = await Schedule.findAll({
       where: {
