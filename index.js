@@ -33,7 +33,7 @@ app.post('/decode', upload.single('image'), (req, res) => {
     const imageData = fs.readFileSync(file.path);
     console.log("imagedata", imageData)
 
-    const qrCode = jsQR(imageData, file.size.width, file.size.height);
+    const qrCode = jsQR(imageData);
     console.log("qrCode", qrCode)
 
     if (qrCode) {
