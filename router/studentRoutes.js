@@ -9,6 +9,7 @@ router.post("/enroll/sched", async (req, res) => {
   try {
     const username = req.cookies.username;
     const { code } = req.body;
+    // 
 
     const findStudent = await User.findOne({
       where: {
