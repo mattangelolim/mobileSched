@@ -9,7 +9,7 @@ router.post("/enroll/sched", async (req, res) => {
   try {
     const username = req.cookies.username;
     const { code } = req.body;
-    // 
+    //
 
     const findStudent = await User.findOne({
       where: {
@@ -77,4 +77,22 @@ router.get("/show/schedules", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.get("/range/sched", async (req, res) => {
+  try {
+    const { code } = req.query;
+
+    const sched = await Range.findOne({
+      where: {
+        code: code,
+      },
+    });
+
+    res.json(sched);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
