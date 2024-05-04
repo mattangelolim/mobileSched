@@ -4,6 +4,7 @@ const Schedule = require("../models/schedules");
 const Enroll = require("../models/enrolled");
 const { Op } = require("sequelize");
 const User = require("../models/user");
+const Range = require("../models/range");
 
 router.post("/enroll/sched", async (req, res) => {
   try {
