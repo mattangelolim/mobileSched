@@ -26,6 +26,7 @@ app.post('/upload', upload.single('qrImage'), async (req, res) => {
 
     // Load the uploaded image using Jimp
     const image = await Jimp.read(req.file.buffer);
+    console.log(image)
 
     // Decode QR code from the image
     const qr = new qrCodeReader();
