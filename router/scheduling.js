@@ -96,6 +96,8 @@ router.post("/create/status", async (req, res) => {
       // Add the status to the retrieved schedule object
       findSchedule.status = status;
 
+      await findSchedule.save();
+
       const userEmails = await User.findAll({
         where: {
           user_type: {
@@ -108,12 +110,12 @@ router.post("/create/status", async (req, res) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "mattlim248@gmail.com",
-          pass: "xrld disq phlb qwgk",
+          user: "ioeclassmonitoring@gmail.com",
+          pass: "pjqf ltkp dtnw hisp",
         },
       });
       const mailOptions = {
-        from: "mattlim248@gmail.com",
+        from: "ioeclassmonitoring@gmail.com",
         subject: `ANNOUNCEMENT FOR SCHEDULE ${findSchedule.description} on ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}`,
         text: `This email is generated automatically to inform you regarding the status of your class. \n${status}`,
       };
