@@ -62,18 +62,20 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
         code: value.result,
       },
     });
+    
     if (checkifEnrolled) {
       return res.status(400).json({ message: "Already Enrolled" });
     }
-    // await Enroll.create({
-    //   username: username,
-    //   student_code: findUser.code,
-    //   code: value.result,
-    // });
+
+    const success = await Enroll.create({
+      username: username,
+      student_code: findUser.code,
+      code: value.result,
+    });
 
     res.send({
       message: "QR code decoded successfully",
-      data: value.result,
+      data: success
     });
   } catch (error) {
     console.error("Error processing image:", error);
