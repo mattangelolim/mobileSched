@@ -93,11 +93,10 @@ router.post("/create/status", async (req, res) => {
       attributes: ["day", "start_time", "end_time", "description"],
     });
     if (findSchedule) {
-      // Add the status to the retrieved schedule object
-      findSchedule.status = status;
-
-      await findSchedule.save();
-
+      const [updatedRowsCount] = await Schedule.update(
+        { status: status },
+        { where: { id: id } }
+      );
       const userEmails = await User.findAll({
         where: {
           user_type: {
@@ -117,7 +116,13 @@ router.post("/create/status", async (req, res) => {
       const mailOptions = {
         from: "ioeclassmonitoring@gmail.com",
         subject: `ANNOUNCEMENT FOR SCHEDULE ${findSchedule.description} on ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}`,
-        text: `This email is generated automatically to inform you regarding the status of your class. \n${status}`,
+        text:
+          `Dear Students,\n\n` +
+          `This is to inform you regarding the status of your class scheduled for ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}.\n\n` +
+          `Class Description: ${findSchedule.description}\n` +
+          `Class Status: ${status}\n\n` +
+          `Please note that this email is generated automatically.\n\n` +
+          `Thank you,\nIOE Admin`,
       };
 
       userEmails.forEach(async (user) => {
