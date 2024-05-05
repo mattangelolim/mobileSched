@@ -18,30 +18,31 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post('/upload', upload.single('qrImage'), (req, res) => {
-  if (!req.file) {
+app.post('/upload', upload.single('qrImage'), async (req, res) => {
+  try {
+    if (!req.file) {
       return res.status(400).send('No file uploaded');
-  }
+    }
 
-  // Load the uploaded image using Jimp
-  Jimp.read(req.file.buffer, (err, image) => {
+    // Load the uploaded image using Jimp
+    const image = await Jimp.read(req.file.buffer);
+
+    // Decode QR code from the image
+    const qr = new qrCodeReader();
+    qr.callback = (err, value) => {
       if (err) {
-          return res.status(500).send('Error reading image');
+        return res.status(400).send('Error decoding QR code');
       }
-
-      // Decode QR code from the image
-      const qr = new qrCodeReader();
-      qr.callback = (err, value) => {
-          if (err) {
-              return res.status(400).send('Error decoding QR code');
-          }
-          res.send({
-              message: 'QR code decoded successfully',
-              data: value.result,
-          });
-      };
-      qr.decode(image.bitmap);
-  });
+      res.send({
+        message: 'QR code decoded successfully',
+        data: value.result,
+      });
+    };
+    qr.decode(image.bitmap);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    return res.status(500).send('Internal Server Error');
+  }
 });
 
 const UserAuthentication = require("./router/authentication");
