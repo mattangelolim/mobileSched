@@ -3,6 +3,7 @@ const router = express.Router();
 const Schedule = require("../models/schedules");
 const { Op } = require("sequelize");
 const User = require("../models/user");
+const Enroll = require("../models/enrolled");
 const Range = require("../models/range");
 const nodemailer = require("nodemailer");
 
@@ -90,15 +91,23 @@ router.post("/create/status", async (req, res) => {
       where: {
         id: id,
       },
-      attributes: ["day", "start_time", "end_time", "description"],
+      attributes: ["day", "start_time", "end_time", "description", "code"],
     });
     if (findSchedule) {
-      const [updatedRowsCount] = await Schedule.update(
-        { status: status },
-        { where: { id: id } }
-      );
+      await Schedule.update({ status: status }, { where: { id: id } });
+
+      const studentCode = await Enroll.findAll({
+        where: {
+          code: findSchedule.code,
+        },
+        attributes: ["student_code"],
+      });
+
+      const codes = studentCode.map((enroll) => enroll.student_code);
+
       const userEmails = await User.findAll({
         where: {
+          code: codes,
           user_type: {
             [Op.ne]: "Professor",
           },
@@ -129,7 +138,7 @@ router.post("/create/status", async (req, res) => {
         mailOptions.to = user.email;
         try {
           await transporter.sendMail(mailOptions);
-          // console.log("Email sent to: " + user.email);
+          console.log("Email sent to: " + user.email);
         } catch (error) {
           console.error("Error sending email to " + user.email + ": ", error);
         }
