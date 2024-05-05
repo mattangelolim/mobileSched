@@ -47,13 +47,14 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
 
     console.log(value.result);
 
-    const findUser = await User.findAll({
+    const findUser = await User.findOne({
       where: {
         username: username,
         user_type: "Student",
       },
       attributes: ["username", "code"],
     });
+    console.log(findUser.code)
 
     const checkifEnrolled = await Enroll.findOne({
       where: {
@@ -64,11 +65,11 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
     if (checkifEnrolled) {
       return res.status(400).json({ message: "Already Enrolled" });
     }
-    await Enroll.create({
-      username: username,
-      student_code: findUser.code,
-      code: value.result,
-    });
+    // await Enroll.create({
+    //   username: username,
+    //   student_code: findUser.code,
+    //   code: value.result,
+    // });
 
     res.send({
       message: "QR code decoded successfully",
