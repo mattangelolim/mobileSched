@@ -4,9 +4,10 @@ const cors = require("cors");
 const port = 9000;
 const cookieParser = require("cookie-parser");
 const path = require("path");
-const multer = require("multer");
-const jsQR = require("jsqr");
-const fs = require("fs");
+const multer = require('multer'); 
+const { createReadStream } = require('fs');
+const qrCodeReader = require('qrcode-reader'); // library for decoding QR codes
+const Jimp = require('jimp'); 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,39 +15,33 @@ app.use(cors());
 app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post("/decode", upload.single("image"), (req, res) => {
-  try {
-    const file = req.file;
-    console.log("file", file);
-    if (!file) {
-      return res.status(400).send("No file uploaded.");
-    }
-
-    const imageData = fs.readFileSync(file.path);
-    console.log("imagedata", imageData);
-
-    const qrCode = jsQR(imageData);
-    console.log("qrCode", qrCode);
-
-    if (qrCode) {
-      res.json({ qrData: qrCode.data });
-    } else {
-      res.status(404).send("QR code not found in the image.");
-    }
-  } catch (error) {
-    console.error("Error decoding QR code:", error);
-    res.status(500).send("Internal server error.");
+app.post('/upload', upload.single('qrImage'), (req, res) => {
+  if (!req.file) {
+      return res.status(400).send('No file uploaded');
   }
+
+  // Load the uploaded image using Jimp
+  Jimp.read(req.file.buffer, (err, image) => {
+      if (err) {
+          return res.status(500).send('Error reading image');
+      }
+
+      // Decode QR code from the image
+      const qr = new qrCodeReader();
+      qr.callback = (err, value) => {
+          if (err) {
+              return res.status(400).send('Error decoding QR code');
+          }
+          res.send({
+              message: 'QR code decoded successfully',
+              data: value.result,
+          });
+      };
+      qr.decode(image.bitmap);
+  });
 });
 
 const UserAuthentication = require("./router/authentication");
