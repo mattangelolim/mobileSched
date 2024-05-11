@@ -68,7 +68,7 @@ router.post("/login/user", async (req, res) => {
         username: username,
         password: password,
       },
-      attributes:["user_type"]
+      attributes: ["user_type"]
     });
     if (!loginUser) {
       return res.status(400).json({ message: "Invalid Credentials" });
