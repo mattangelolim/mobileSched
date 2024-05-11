@@ -13,9 +13,6 @@ router.post("/create/schedule", async (req, res) => {
     let day = req.body.day;
     const code = req.query.code;
 
-    console.log("name", professor)
-    console.log("code", code)
-
     day = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
 
     // Check if the schedule already exists

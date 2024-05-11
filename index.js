@@ -64,7 +64,7 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
         code: value.result,
       },
     });
-    
+
     if (checkifEnrolled) {
       return res.json({ message: "Already Enrolled" });
     }
@@ -88,9 +88,10 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
 const UserAuthentication = require("./router/authentication");
 const Scheduling = require("./router/scheduling");
 const studentRoutes = require("./router/studentRoutes");
-const admin = require("./router/admin")
+const admin = require("./router/admin");
+const announcements = require("./router/announcement");
 
-app.use("/", UserAuthentication, Scheduling, studentRoutes,admin);
+app.use("/", UserAuthentication, Scheduling, studentRoutes, admin, announcements);
 
 cron.schedule('59 23 * * 6', async () => { // This schedule runs every Saturday at 11:59 PM
   try {
@@ -101,7 +102,7 @@ cron.schedule('59 23 * * 6', async () => { // This schedule runs every Saturday 
     console.error('Error clearing statuses:', error);
   }
 }, {
-  timezone: "Asia/Manila" 
+  timezone: "Asia/Manila"
 });
 
 app.listen(port, () => {
