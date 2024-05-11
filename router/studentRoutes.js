@@ -48,14 +48,38 @@ router.get("/get/enrolled", async (req, res) => {
   try {
     const username = req.cookies.username;
 
-    const EnrolledScheds = await Enroll.findAll({
+    // Fetch enrolled schedules for the user
+    const enrolledScheds = await Enroll.findAll({
       where: {
         username: username,
       },
       attributes: ["code"],
     });
 
-    res.json(EnrolledScheds);
+    // Extract codes from enrolled schedules
+    const codes = enrolledScheds.map(enroll => enroll.code);
+
+    // Fetch corresponding names for the codes
+    const enrolledSchedNames = await User.findAll({
+      where: {
+        code: codes
+      },
+      attributes: ["code", "name"]
+    });
+
+    // Create a map of code to name
+    const codeToNameMap = {};
+    enrolledSchedNames.forEach(enroll => {
+      codeToNameMap[enroll.code] = enroll.name;
+    });
+
+    // Prepare response object with code and corresponding name
+    const response = enrolledScheds.map(enroll => ({
+      code: enroll.code,
+      name: codeToNameMap[enroll.code] // Get corresponding name using the map
+    }));
+
+    res.json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
