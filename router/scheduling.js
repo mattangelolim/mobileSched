@@ -11,18 +11,9 @@ router.post("/create/schedule", async (req, res) => {
   try {
     const { start_time, end_time, professor, description } = req.body;
     let day = req.body.day;
-    const username = req.query.username;
+    const code = req.query.code;
 
     day = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
-
-    // Find the user's code
-    const findUser = await User.findOne({
-      where: {
-        username: username,
-        user_type: "Professor",
-      },
-      attributes: ["code"],
-    });
 
     if (!findUser) {
       return res.status(404).json({ message: "User not found" });
@@ -34,7 +25,7 @@ router.post("/create/schedule", async (req, res) => {
         day: day,
         start_time: start_time,
         end_time: end_time,
-        code: findUser.code,
+        code: code,
       },
     });
 
@@ -49,7 +40,7 @@ router.post("/create/schedule", async (req, res) => {
       end_time,
       professor,
       description,
-      code: findUser.code,
+      code:code,
     });
 
     res.status(200).json({ message: "Schedule created successfully" });
