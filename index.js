@@ -86,8 +86,9 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
 const UserAuthentication = require("./router/authentication");
 const Scheduling = require("./router/scheduling");
 const studentRoutes = require("./router/studentRoutes");
+const admin = require("./router/admin")
 
-app.use("/", UserAuthentication, Scheduling, studentRoutes);
+app.use("/", UserAuthentication, Scheduling, studentRoutes,admin);
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
