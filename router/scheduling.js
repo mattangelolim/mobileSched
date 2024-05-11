@@ -265,7 +265,7 @@ router.get("/check/sem/range", async (req, res) => {
 
 router.get("/check/sem/ranges", async (req, res) => {
   try {
-    const code = req.query;
+    const code = req.query.code;
 
     const rangeReponse = await Range.findOne({
       where: {
