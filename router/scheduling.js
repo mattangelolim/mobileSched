@@ -14,11 +14,7 @@ router.post("/create/schedule", async (req, res) => {
     const code = req.query.code;
 
     day = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
-
-    if (!findUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    
     // Check if the schedule already exists
     const existingSchedule = await Schedule.findOne({
       where: {
