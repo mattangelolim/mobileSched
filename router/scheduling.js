@@ -11,7 +11,7 @@ router.post("/create/schedule", async (req, res) => {
   try {
     const { start_time, end_time, professor, description } = req.body;
     let day = req.body.day;
-    const username = req.cookies.username;
+    const username = req.query.username;
 
     day = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
 
