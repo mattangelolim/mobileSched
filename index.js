@@ -11,6 +11,8 @@ const Jimp = require("jimp");
 
 const User = require("./models/user");
 const Enroll = require("./models/enrolled");
+const Schedule = require("./models/schedules")
+const cron = require('node-cron');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -89,6 +91,18 @@ const studentRoutes = require("./router/studentRoutes");
 const admin = require("./router/admin")
 
 app.use("/", UserAuthentication, Scheduling, studentRoutes,admin);
+
+cron.schedule('59 23 * * 6', async () => { // This schedule runs every Saturday at 11:59 PM
+  try {
+    // Clear all statuses from the Schedules table
+    await Schedule.update({ status: null }, { where: {} });
+    console.log('Statuses cleared successfully.');
+  } catch (error) {
+    console.error('Error clearing statuses:', error);
+  }
+}, {
+  timezone: "Asia/Manila" 
+});
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
