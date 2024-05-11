@@ -94,6 +94,43 @@ router.post("/logout/user", async (req, res) => {
   }
 });
 
+router.post("/check/email", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+
+    if (user) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(404).json({ exists: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.post("/reset/password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    // Check if the user exists
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.get("/get/user", async (req, res) => {
   try {
     const username = req.cookies.username;
