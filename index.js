@@ -64,7 +64,7 @@ app.post("/upload", upload.single("qrImage"), async (req, res) => {
     });
     
     if (checkifEnrolled) {
-      return res.status(200).json({ message: "Already Enrolled" });
+      return res.json({ message: "Already Enrolled" });
     }
 
     const success = await Enroll.create({
