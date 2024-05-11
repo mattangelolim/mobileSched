@@ -263,4 +263,25 @@ router.get("/check/sem/range", async (req, res) => {
   }
 });
 
+router.get("/check/sem/ranges", async (req, res) => {
+  try {
+    const code = req.query;
+
+    const rangeReponse = await Range.findOne({
+      where: {
+        code: code,
+      },
+    });
+
+    if (!rangeReponse) {
+      return res.json(null);
+    }
+
+    res.json(rangeReponse);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
