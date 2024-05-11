@@ -194,17 +194,8 @@ router.post("/scan/qr", async (req, res) => {
 
 router.post("/set/sem/range", async (req, res) => {
   try {
-    const username = req.cookies.username;
-    const { number } = req.body;
-
-    // Find the user code of the professor
-    const professorUserCode = await User.findOne({
-      where: {
-        username: username,
-        user_type: "Professor",
-      },
-      attributes: ["code"],
-    });
+    // const username = req.cookies.username;
+    const { number, code } = req.body;
 
     const startDate = new Date();
     const endDate = new Date();
@@ -214,7 +205,7 @@ router.post("/set/sem/range", async (req, res) => {
     await Range.create({
       startDate: startDate,
       endDate: endDate,
-      code: professorUserCode.code,
+      code: code,
     });
 
     res.status(200).json({ message: "Semester range set successfully" });
