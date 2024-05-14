@@ -76,7 +76,7 @@ router.get("/get/enrolled", async (req, res) => {
     // Prepare response object with code and corresponding name
     const response = enrolledScheds.map(enroll => ({
       code: enroll.code,
-      name: codeToNameMap[enroll.code] // Get corresponding name using the map
+      name: codeToNameMap[enroll.code] 
     }));
 
     res.json(response);

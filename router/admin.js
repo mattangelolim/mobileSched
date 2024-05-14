@@ -17,6 +17,21 @@ router.get("/get/profesors", async (req,res) =>{
     }
 })
 
+router.post("/delete/user", async (req,res) =>{
+    try {
+        const {code} = req.query
+        const deleteUser = await User.destroy({
+            where:{
+                code:code
+            }
+        })
+        res.json(deleteUser)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+})
+
 router.get("/get/students", async (req,res) =>{
     try {
         const students = await User.findAll({
