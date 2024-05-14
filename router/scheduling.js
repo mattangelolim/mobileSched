@@ -36,7 +36,7 @@ router.post("/create/schedule", async (req, res) => {
       end_time,
       professor,
       description,
-      code:code,
+      code: code,
     });
 
     res.status(200).json({ message: "Schedule created successfully" });
@@ -69,6 +69,78 @@ router.get("/set/schedules", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.post("/update/status", async (req, res) => {
+  try {
+    const { status, id } = req.body
+    const findSchedule = await Schedule.findOne({
+      where: {
+        id: id,
+      },
+      attributes: ["day", "start_time", "end_time", "description", "code"],
+    });
+    if (findSchedule) {
+      await Schedule.update({ status: status }, { where: { id: id } });
+
+      const studentCode = await Enroll.findAll({
+        where: {
+          code: findSchedule.code,
+        },
+        attributes: ["student_code"],
+      });
+
+      const codes = studentCode.map((enroll) => enroll.student_code);
+
+      const userEmails = await User.findAll({
+        where: {
+          code: codes,
+          user_type: {
+            [Op.ne]: "Professor",
+          },
+        },
+        attributes: ["email"],
+      });
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "ioeclassmonitoring@gmail.com",
+          pass: "pjqf ltkp dtnw hisp",
+        },
+      });
+      const mailOptions = {
+        from: "ioeclassmonitoring@gmail.com",
+        subject: `ANNOUNCEMENT FOR UPDATED STATUS SCHEDULE ${findSchedule.description} on ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}`,
+        text:
+          `Dear Students,\n\n` +
+          `This is to inform you regarding the updated status of your class scheduled for ${findSchedule.day} from ${findSchedule.start_time} to ${findSchedule.end_time}.\n\n` +
+          `Class Description: ${findSchedule.description}\n` +
+          `Class Updated Status: ${status}\n\n` +
+          `Please note that this email is generated automatically.\n\n` +
+          `Thank you,\nIOE Admin`,
+      };
+
+      userEmails.forEach(async (user) => {
+        mailOptions.to = user.email;
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log("Email sent to: " + user.email);
+        } catch (error) {
+          console.error("Error sending email to " + user.email + ": ", error);
+        }
+      });
+    }
+
+    res.status(201).json({
+      message: "Announcement sent Successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+})
+
 router.post("/create/status", async (req, res) => {
   try {
     // const username = req.cookies.username;

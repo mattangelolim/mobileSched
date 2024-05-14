@@ -17,6 +17,7 @@ const generateRandomCode = (length) => {
 
 router.post("/register/user", async (req, res) => {
   try {
+    const { student_no } = req.query
     const { name, email, username, password, user_type } = req.body;
     const randomCode = generateRandomCode(6);
     const userTypeUpperCase = user_type.toUpperCase();
@@ -43,12 +44,11 @@ router.post("/register/user", async (req, res) => {
         password,
       });
     } else {
-      const randomNumbers = Math.floor(1000 + Math.random() * 9000);
       await User.create({
         name,
         email,
         username,
-        code: `STUDENT${randomNumbers}`,
+        code: student_no,
         password,
       });
     }
