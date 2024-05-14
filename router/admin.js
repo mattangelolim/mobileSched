@@ -1,26 +1,32 @@
 const express = require("express");
 const User = require("../models/user");
+const Enroll = require("../models/enrolled");
 const router = express.Router()
 
-router.get("/get/profesors", async (req,res) =>{
+router.get("/get/profesors", async (req, res) => {
     try {
         const profs = await User.findAll({
-            where:{
+            where: {
                 user_type: "Professor"
             }
         })
         res.json(profs)
-        
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
 })
 
-router.post("/delete/user", async (req,res) =>{
+router.post("/delete/user", async (req, res) => {
     try {
-        const {code} = req.query
+        const { code } = req.query
         const deleteUser = await User.destroy({
+            where: {
+                code: code
+            }
+        })
+        await Enroll.destroy({
             where:{
                 code:code
             }
@@ -32,15 +38,15 @@ router.post("/delete/user", async (req,res) =>{
     }
 })
 
-router.get("/get/students", async (req,res) =>{
+router.get("/get/students", async (req, res) => {
     try {
         const students = await User.findAll({
-            where:{
+            where: {
                 user_type: "Student"
             }
         })
         res.json(students)
-        
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
