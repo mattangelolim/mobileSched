@@ -250,9 +250,9 @@ router.get("/active/schedules", async (req, res) => {
 
 router.post("/scan/qr", async (req, res) => {
   try {
-    const id = req.body.id;
+    const code = req.body.code;
 
-    await Schedule.update({ display: "1" }, { where: { id } });
+    await Schedule.update({ display: "1" }, { where: { code: code } });
 
     res.status(200).json({ message: "Display updated successfully" });
   } catch (error) {
