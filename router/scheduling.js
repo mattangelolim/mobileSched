@@ -252,9 +252,9 @@ router.post("/scan/qr", async (req, res) => {
   try {
     const code = req.body.code;
 
-    await Schedule.update({ display: "1" }, { where: { code: code } });
+    const response = await Schedule.update({ display: "1" }, { where: { code: code } });
 
-    res.status(200).json({ message: "Display updated successfully" });
+    res.status(200).json({ message: "Display updated successfully", response });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
